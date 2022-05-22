@@ -6,10 +6,12 @@ import {
   Delete,
   Post,
   Body,
+  HttpStatus,
+  HttpException,
 } from '@nestjs/common';
 import { NewPost } from './dto/News.dto';
 import { UpdateNews } from './dto/UpdateNews.dto';
-import { NewsService } from '../newsService/newsService.service';
+import { INews, NewsService } from '../newsService/newsService.service';
 
 @Controller('news')
 export class NewsController {
@@ -17,30 +19,47 @@ export class NewsController {
 
   @Get()
   getNews() {
-    return this.newsService.getNews();
+    return this.newsService.findAll();
   }
 
-  @Get(':id')
-  getPost(@Param('id') id): string | object {
-    return this.newsService.getWithId(id);
+  @Get('/:id')
+  findById(@Param('id') id): object | null {
+    const res = this.newsService.findById(id);
+    if (!res) {
+      throw new HttpException(
+        {
+          status: HttpStatus.FORBIDDEN,
+          error: 'Новость с таким ID не найдена',
+        },
+        HttpStatus.FORBIDDEN,
+      );
+    } else return res;
   }
-  //{
-  // 		"title": "Название новости",
-  // 		"description": "Описание новости",
-  // 		"ownerId": "8fcc0e4a-8595-4221-80dd-2e35f6315ebf"
-  // 	}
 
   @Post()
-  newPost(@Body() newPost: NewPost) {
-    return this.newsService.newPost(newPost);
+  create(@Body() newPost: NewPost) {
+    return this.newsService.create(newPost);
   }
+
   @Delete(':id')
-  removeNews(@Param('id') id: string) {
-    return this.newsService.deleteNews(id);
+  delete(@Param('id') id: string) {
+    return this.newsService.delete(id);
   }
 
   @Put(':id')
-  update(@Body() updateNews: UpdateNews, @Param() id: string) {
-    return this.newsService.update(updateNews, id);
+  updateNews(
+    @Body() updateNews: UpdateNews,
+    @Param('id') id: string,
+  ): INews | null {
+    const res = this.newsService.update(updateNews, id);
+    if (!res) {
+      throw new HttpException(
+        {
+          status: HttpStatus.FORBIDDEN,
+          error: 'Новость с таким ID не найдена',
+        },
+        HttpStatus.FORBIDDEN,
+      );
+    } else return res;
   }
 }

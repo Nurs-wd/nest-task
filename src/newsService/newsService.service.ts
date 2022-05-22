@@ -2,9 +2,16 @@ import { Injectable } from '@nestjs/common';
 import { NewPost } from '../news/dto/News.dto';
 import { UpdateNews } from '../news/dto/UpdateNews.dto';
 
+export interface INews {
+  description?: string;
+  id?: string;
+  title: string;
+  ownerId: string;
+}
+
 @Injectable()
 export class NewsService {
-  private news = [
+  private news: INews[] = [
     {
       id: 'f8e8b4cc-a279-493f-b8c1-ae1e0de5758e',
       title: 'Название новости',
@@ -18,6 +25,7 @@ export class NewsService {
       ownerId: '123',
     },
   ];
+
   private hashing(str): string {
     let hash = 0;
     let char;
@@ -30,37 +38,38 @@ export class NewsService {
     return `${hash}`;
   }
 
-  getNews() {
+  findAll(): INews[] {
     return this.news;
   }
 
-  getWithId(id: string): string | object {
+  findById(id: string): object | null {
     return this.news.find((post) => post.id === id);
   }
 
-  newPost(newPost: NewPost) {
-    return this.news.push({
+  create(newPost: NewPost): UpdateNews {
+    const post = {
       id: this.hashing(newPost.title),
       title: newPost.title,
-      description: newPost.descripton,
+      description: newPost.description,
       ownerId: newPost.ownerId,
+    };
+    this.news.push(post);
+    return post;
+  }
+
+  delete(id: string): void | null {
+    this.news.filter((i) => i.id != id);
+  }
+
+  update(updateNews: UpdateNews, id: string): INews | null {
+    this.news.forEach((el) => {
+      if (el.id === id) {
+        el.id = id;
+        el.title = updateNews.title;
+        el.description = updateNews.description;
+        el.ownerId = updateNews.ownerId;
+      }
     });
-  }
-
-  deleteNews(id: string) {
-    return this.news.filter((i) => i.id != id);
-  }
-
-  update(updateNews: UpdateNews, id: string) {
-    return this.news.map((el) =>
-      el.id === id
-        ? {
-            id: updateNews.id,
-            title: updateNews.title,
-            description: updateNews.descripton,
-            ownerId: updateNews.ownerId,
-          }
-        : el,
-    );
+    return this.news.find((el) => el.id === id);
   }
 }

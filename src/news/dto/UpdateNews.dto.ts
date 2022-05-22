@@ -1,7 +1,14 @@
 import uuid = require('uuid');
+import { IsOptional, IsString, IsUUID } from 'class-validator';
+
 export class UpdateNews {
-  readonly title: string;
-  readonly descripton?: string;
-  readonly ownerId: string = uuid.v4();
-  id: string;
+  @IsString()
+  title: string;
+  @IsOptional()
+  @IsString()
+  description?: string;
+  ownerId: string = uuid.v4();
+  @IsOptional()
+  @IsString()
+  id?: string;
 }

@@ -1,7 +1,15 @@
 import uuid = require('uuid');
+import { IsOptional, IsString } from 'class-validator';
+
 export class NewPost {
-  readonly id: string;
-  readonly ownerId: string = uuid.v4();
-  readonly title: string;
-  readonly descripton?: string;
+  @IsOptional()
+  @IsString()
+  id?: string;
+
+  ownerId: string = uuid.v4();
+  @IsString()
+  title: string;
+  @IsOptional()
+  @IsString()
+  description?: string;
 }
