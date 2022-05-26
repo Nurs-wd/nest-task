@@ -58,7 +58,13 @@ export class NewsService {
   }
 
   delete(id: string): void | null {
-    this.news.filter((i) => i.id !== id);
+    let index;
+    for (let i; i <= this.news; i++) {
+      if (i.id === id) {
+        index = i;
+      }
+    }
+    this.news.splice(index, 1);
   }
 
   update(updateNews: UpdateNews, id: string): INews | null {
